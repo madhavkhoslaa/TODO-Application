@@ -23,4 +23,21 @@ app.post('/task', (req, res) => {
         res.status(400).send(e)
     })
 })
+app.get('/task', (req, res) => {
+    Task.find({}).then((task) => {
+        res.status(200).send(task)
+    }).catch((err) => {
+        res.status(500).send(err)
+    })
+})
+app.get('/task/:id', (req, res) => {
+    Task.findById(req.params.id).then((task) => {
+        res.status(200).send(task)
+    }).catch((e) => {
+        res.status(500).send(e)
+    })
+})
+Task.findByIdAndDelete('5eefd52d3a6b732d179ffc1e').then((task) => {
+    return Task.countDocuments({ completion: false })
+}).then(number => console.log(number))
 app.listen(port, () => console.log(`Server Running on ${port}`))
