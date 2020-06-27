@@ -7,37 +7,39 @@ const port = process.env.port || 3002
 const app = express()
 app.use(express.json())
 
-app.post('/users', (req, res) => {
+app.post('/users', async(req, res) => {
     user = new User(req.body)
-    user.save().then(() => {
+    try {
+        await user.save()
         res.status(201).send({ message: "user created successfully" })
-    }).catch((e) => {
+    } catch (e) {
         res.status(400).send(e)
-    })
+    }
 })
-app.post('/task', (req, res) => {
-    task = new Task(req.body)
-    task.save().then(() => {
+app.post('/task', async(req, res) => {
+    try {
+        task = new Task(req.body)
+        const t = await task.save()
         res.status(201).send({ message: "task created successfully" })
-    }).catch((e) => {
+    } catch (e) {
         res.status(400).send(e)
-    })
+    }
 })
-app.get('/task', (req, res) => {
-    Task.find({}).then((task) => {
+app.get('/task', async(req, res) => {
+    try {
+        const task = await Task.find({})
         res.status(200).send(task)
-    }).catch((err) => {
+    } catch (err) {
         res.status(500).send(err)
-    })
+    }
 })
-app.get('/task/:id', (req, res) => {
-    Task.findById(req.params.id).then((task) => {
+app.get('/task/:id', async(req, res) => {
+    try {
+        const task = await Task.findById(req.params.id)
         res.status(200).send(task)
-    }).catch((e) => {
+    } catch (e) {
         res.status(500).send(e)
-    })
+    }
 })
-Task.findByIdAndDelete('5eefd52d3a6b732d179ffc1e').then((task) => {
-    return Task.countDocuments({ completion: false })
-}).then(number => console.log(number))
+
 app.listen(port, () => console.log(`Server Running on ${port}`))
