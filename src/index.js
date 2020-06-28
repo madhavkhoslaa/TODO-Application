@@ -71,7 +71,6 @@ app.get('/task', async(req, res) => {
 app.get('/task/:id', async(req, res) => {
     try {
         const task = await Task.findById(req.params.id)
-        console.log(task)
         res.status(200).send(task)
     } catch (e) {
         res.status(404).send({ error: "not found" })
@@ -80,10 +79,8 @@ app.get('/task/:id', async(req, res) => {
 
 app.patch('/task/:id', async(req, res) => {
     const updates = Object.keys(req.body)
-    console.log(updates)
     const validkeys = ['description', 'completion']
     const validrequest = updates.every((update) => validkeys.includes(update))
-    console.log(validrequest)
     if (!validrequest) return res.status(400).send({ error: "bad request" })
     try {
         const user = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
