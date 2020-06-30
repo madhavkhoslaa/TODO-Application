@@ -1,17 +1,16 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
-user = mongoose.model('user', {
+userSchema = new mongoose.Schema({
     name: {
         type: String,
         trim: true,
         required: true,
-        minlength: 3,
-        unique: true,
-        maxlength: 20,
         validate(value) {
-            if (value.length > 20) throw new Error("password too long")
-            if (value.length < 3) throw new Error("password too short")
+            if (value.length > 20) throw new Error("name too long")
+            if (value.length < 3) throw new Error("name too short")
         }
     },
     age: {
@@ -25,6 +24,7 @@ user = mongoose.model('user', {
     },
     email: {
         type: String,
+        unique: true,
         maxlength: 100,
         validate(value) {
             if (!validator.isEmail(value)) throw new Error("must be email");
@@ -37,5 +37,25 @@ user = mongoose.model('user', {
         trim: true
     }
 })
+userSchema.methods.getAuthtoken = async function() {
+    const user = this
+    const token = jwt.sign({ _id: user._id.toString() }, "password")
+    return token
+}
+userSchema.statics.findbyCredentials = async(email, password, errorcallback) => {
+    const user_ = await user.findOne({ "email": email })
+    if (!user_) throw new Error('unable to login')
+    const ismatched = await bcrypt.compare(password, user_.password)
+    if (!ismatched) throw new Error('unable to login')
+    return user_
+}
+userSchema.pre('save', function(next) {
+    const user = this
+    if (user.isModified('password')) {
+        user.password = bcrypt.hashSync(user.password, 8)
+    }
+    next()
+})
+user = mongoose.model('user', userSchema)
 
 module.exports = user
