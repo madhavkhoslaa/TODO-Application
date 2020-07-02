@@ -33,13 +33,24 @@ userSchema = new mongoose.Schema({
     password: {
         type: String,
         minlength: 5,
-        maxlength: 20,
         trim: true
-    }
+    },
+    tokens: [{
+        token: {
+            type: String,
+            required: true
+        }
+    }]
 })
 userSchema.methods.getAuthtoken = async function() {
-    const user = this
-    const token = jwt.sign({ _id: user._id.toString() }, "password")
+    const user_ = this
+    const token = jwt.sign({ _id: user_._id.toString() }, "password")
+    user_.tokens = user_.tokens.concat({ token })
+    try {
+        await user_.save()
+    } catch (e) {
+        console.log(e)
+    }
     return token
 }
 userSchema.statics.findbyCredentials = async(email, password, errorcallback) => {
