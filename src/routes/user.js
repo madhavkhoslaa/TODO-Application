@@ -18,12 +18,14 @@ userrouter.post('/users', async(req, res) => {
 userrouter.get('/users/login', async(req, res) => {
     try {
         const user = await User.findbyCredentials(req.body.email, req.body.password)
+        console.log(user)
         if (!user) {
             return res.status(400).send('unable to login')
         }
         const token = await user.getAuthtoken()
         res.status(200).send({ user, token })
     } catch (e) {
+        console.log(e)
         res.status(400).send("unable to login")
     }
 })
@@ -37,7 +39,7 @@ userrouter.get('/users/:id', auth, async(req, res) => {
     }
 })
 
-userrouter.get('/users', async(req, res) => {
+userrouter.get('/users', auth, async(req, res) => {
     try {
         const users = await User.find({})
         res.status(200).send(users)
