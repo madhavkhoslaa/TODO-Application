@@ -53,6 +53,13 @@ userSchema.methods.getAuthtoken = async function() {
     }
     return token
 }
+userSchema.methods.toJSON = function() {
+    const user_ = this
+    const userobj_ = user_.toObject()
+    delete userobj_.password
+    delete userobj_.tokens
+    return userobj_
+}
 userSchema.statics.findbyCredentials = async(email, password, errorcallback) => {
     const user_ = await user.findOne({ "email": email })
     if (!user_) throw new Error('unable to login')
