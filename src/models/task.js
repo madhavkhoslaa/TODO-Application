@@ -11,6 +11,11 @@ task = mongoose.model('task', {
         type: Boolean,
         default: false,
         required: false
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'user'
     }
 })
 
